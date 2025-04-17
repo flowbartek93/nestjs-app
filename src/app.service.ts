@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { TestService } from './test/test.service';
+import { LoggerService } from './logger/logger.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly testSrv: TestService) {}
+  constructor(private readonly logger: LoggerService) {}
 
   getHello(): string {
-    return 'Hello World!' + this.testSrv.work();
+    return this.logger.log('hello world !!!');
   }
 }
