@@ -1,5 +1,23 @@
+### Variables
+
+
+
+http://{{{baseUrl}}}
+
+GET {{baseUrl}}/tasks/123
+
+
+@baseUrl = http://localhost:3000
+
+@contentType = application/json
 
 
 
 
-GET http://localhost:3000/tasks/123
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+{
+    "title": "New Task",
+    "description": "This is a new task.",
+    "status": "OPEN"
+}
