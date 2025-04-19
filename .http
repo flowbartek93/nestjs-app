@@ -1,15 +1,15 @@
 ### Variables
 
-
-
+@baseUrl = http://localhost:3000
+@contentType = application/json
 http://{{{baseUrl}}}
 
 GET {{baseUrl}}/tasks/123
 
 
-@baseUrl = http://localhost:3000
 
-@contentType = application/json
+
+
 
 
 
