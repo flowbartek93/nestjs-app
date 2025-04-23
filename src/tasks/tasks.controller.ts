@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
@@ -11,7 +14,8 @@ import { TasksService } from './tasks.service';
 import { ITask } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
-import { UpdateTaskStatusDto } from './update-task.dto';
+import { UpdateTaskStatusDto } from './update-task-status.dto';
+import { UpdateTaskDto } from './update-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -28,16 +32,24 @@ export class TasksController {
     return this.findOrFail(params.id);
   }
 
-  @Patch('/:id/status')
-  public updateTaskStatus(
+  @Patch('/:id')
+  public updateTask(
     @Param() params: FindOneParams,
-    @Body() body: UpdateTaskStatusDto,
+    @Body() updatedTask: UpdateTaskDto,
   ): ITask {
     const task = this.findOrFail(params.id);
 
-    task.status = body.status;
+    this.tasksService.updateTask(task, updatedTask);
 
     return task;
+  }
+
+  @Delete('/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public deleteTask(@Param() params: FindOneParams) {
+    const task = this.findOrFail(params.id);
+
+    this.tasksService.deleteTask(task.id ?? '');
   }
 
   @Post()

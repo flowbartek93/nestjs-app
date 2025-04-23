@@ -1,11 +1,7 @@
-import { IsEnum, IsNotEmpty } from "class-validator";
-import { TaskStatus } from "./task.model";
+import { PartialType } from '@nestjs/swagger';
+import { TaskStatus } from './task.model';
 
-export class UpdateTaskStatusDto {
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { CreateTaskDto } from './create-task.dto';
 
-    @IsNotEmpty()
-    @IsEnum(TaskStatus)
-
-    status: TaskStatus;
-
-}
+export class UpdateTaskDto extends PartialType(CreateTaskDto) {}
