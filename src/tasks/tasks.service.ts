@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ITask } from './task.model';
+import { ITask, TaskStatus } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { randomUUID } from 'crypto';
 import { UpdateTaskDto } from './update-task.dto';
+import { WrontTaskStatusException } from './exceptions/wrong-task.status.exception';
 
 @Injectable()
 export class TasksService {
@@ -32,25 +33,28 @@ export class TasksService {
     this.tasks = this.tasks.filter((task) => task.id !== id);
   }
 
-  updateTask(task: ITask, body: UpdateTaskDto) {
-    // const properTask = this.findOne(id);
-
-    // if (!properTask) {
-    //   throw new Error('Task not found');
-    // }
-
-    // const updatedTask = { ...properTask, ...body };
-
-    // this.tasks = this.tasks.map((task) => {
-    //   if (task.id === id) {
-    //     return updatedTask;
-    //   }
-
-    //   return task;
-    // });
-
-    Object.assign(task, body);
+  updateTask(task: ITask, updateTaskTo: UpdateTaskDto) {
+    if (
+      updateTaskTo.status &&
+      !this.isValidStatusTransition(task.status, updateTaskTo.status)
+    ) {
+      throw new WrontTaskStatusException();
+    }
+    Object.assign(task, updateTaskTo);
 
     return task;
+  }
+
+  private isValidStatusTransition(
+    currentStatus: TaskStatus,
+    newStatus: TaskStatus,
+  ) {
+    const statusOrder = [
+      TaskStatus.OPEN,
+      TaskStatus.IN_PROGRESS,
+      TaskStatus.DONE,
+    ];
+
+    return statusOrder.indexOf(currentStatus) <= statusOrder.indexOf(newStatus);
   }
 }

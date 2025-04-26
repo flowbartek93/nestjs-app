@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  BadRequestException,
   Param,
   Patch,
   Post,
@@ -14,8 +15,8 @@ import { TasksService } from './tasks.service';
 import { ITask } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
-import { UpdateTaskStatusDto } from './update-task-status.dto';
 import { UpdateTaskDto } from './update-task.dto';
+import { WrontTaskStatusException } from './exceptions/wrong-task.status.exception';
 
 @Controller('tasks')
 export class TasksController {
@@ -39,9 +40,15 @@ export class TasksController {
   ): ITask {
     const task = this.findOrFail(params.id);
 
-    this.tasksService.updateTask(task, updatedTask);
+    try {
+      return this.tasksService.updateTask(task, updatedTask);
+    } catch (err) {
+      if (err instanceof WrontTaskStatusException) {
+        throw new BadRequestException('Wrong task status transition');
+      }
 
-    return task;
+      throw err;
+    }
   }
 
   @Delete('/:id')
