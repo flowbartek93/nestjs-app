@@ -7,11 +7,16 @@ import { LoggerService } from './logger/logger.service';
 import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './config-files/app.config';
+import { appConfigSchema } from './config-files/config.types';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [appConfig],
+      validationSchema: appConfigSchema,
+      validationOptions: {
+        aboutEarly: true,
+      },
     }),
     TasksModule,
   ],
