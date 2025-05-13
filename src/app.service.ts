@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { LoggerService } from './logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { ConfigType } from './config-files/config.types';
-import { AppConfig, appConfig } from './config-files/app.config';
+import { AppConfig } from './config-files/app.config';
 
 @Injectable()
 export class AppService {
