@@ -4,9 +4,17 @@ import { CreateTaskDto } from './create-task.dto';
 import { randomUUID } from 'crypto';
 import { UpdateTaskDto } from './update-task.dto';
 import { WrontTaskStatusException } from './exceptions/wrong-task.status.exception';
+import { Repository } from 'typeorm';
+import { Task } from './task.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TasksService {
+  constructor(
+    @InjectRepository(Task)
+    private readonly tasksRepo: Repository<Task>,
+  ) {}
+
   private tasks: ITask[] = [];
 
   findAll(): ITask[] {
