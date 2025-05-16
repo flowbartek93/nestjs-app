@@ -17,31 +17,33 @@ import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
 import { UpdateTaskDto } from './update-task.dto';
 import { WrontTaskStatusException } from './exceptions/wrong-task.status.exception';
+import { Task } from './task.entity';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
+
   @Get()
-  public findAll(): ITask[] {
-    return this.tasksService.findAll();
+  public async findAll(): Promise<Task[]> {
+    return await this.tasksService.findAll();
   }
 
   ///!! SPRWADZ TE RE CZY FAKTYCZNIE DZIALAJA
 
   @Get('/:id')
-  public findOne(@Param() params: FindOneParams): ITask {
-    return this.findOrFail(params.id);
+  public async findOne(@Param() params: FindOneParams): Promise<Task> {
+    return await this.findOrFail(params.id);
   }
 
   @Patch('/:id')
-  public updateTask(
+  public async updateTask(
     @Param() params: FindOneParams,
     @Body() updatedTask: UpdateTaskDto,
-  ): ITask {
-    const task = this.findOrFail(params.id);
+  ): Promise<Task> {
+    const task = await this.findOrFail(params.id);
 
     try {
-      return this.tasksService.updateTask(task, updatedTask);
+      return await this.tasksService.updateTask(task, updatedTask);
     } catch (err) {
       if (err instanceof WrontTaskStatusException) {
         throw new BadRequestException('Wrong task status transition');
@@ -53,19 +55,19 @@ export class TasksController {
 
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public deleteTask(@Param() params: FindOneParams) {
-    const task = this.findOrFail(params.id);
+  public async deleteTask(@Param() params: FindOneParams): Promise<void> {
+    const task = await this.findOrFail(params.id);
 
-    this.tasksService.deleteTask(task.id ?? '');
+    this.tasksService.deleteTask(task);
   }
 
   @Post()
-  public createTask(@Body() data: CreateTaskDto): ITask {
+  public createTask(@Body() data: CreateTaskDto): Promise<Task> {
     return this.tasksService.createTask(data);
   }
 
-  private findOrFail(id: string): ITask {
-    const task = this.tasksService.findOne(id);
+  private async findOrFail(id: string): Promise<Task> {
+    const task = await this.tasksService.findOne(id);
 
     if (!task) {
       throw new NotFoundException(`Task with id ${id} not found`);

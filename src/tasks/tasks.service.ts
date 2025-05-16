@@ -17,40 +17,32 @@ export class TasksService {
 
   private tasks: ITask[] = [];
 
-  findAll(): ITask[] {
-    return this.tasks;
+  async findAll(): Promise<Task[]> {
+    return await this.tasksRepo.find();
   }
 
-  findOne(id: string): ITask | undefined {
-    return this.tasks.find((task) => task.id === id);
+  async findOne(id: string): Promise<Task | null> {
+    return await this.tasksRepo.findOneBy({ id });
   }
 
-  createTask(task: CreateTaskDto): ITask {
-    const newTask: ITask = {
-      id: randomUUID(),
-      description: task.description,
-      status: task.status,
-      title: task.title,
-    };
-
-    this.tasks.push(newTask);
-    return newTask;
+  async createTask(createDto: CreateTaskDto): Promise<Task> {
+    return await this.tasksRepo.save(createDto);
   }
 
-  deleteTask(id: string): void {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
+  async deleteTask(task: Task): Promise<void> {
+    await this.tasksRepo.delete(task);
   }
-
-  updateTask(task: ITask, updateTaskTo: UpdateTaskDto) {
+  async updateTask(task: Task, updateTaskTo: UpdateTaskDto): Promise<Task> {
     if (
       updateTaskTo.status &&
       !this.isValidStatusTransition(task.status, updateTaskTo.status)
     ) {
       throw new WrontTaskStatusException();
     }
+
     Object.assign(task, updateTaskTo);
 
-    return task;
+    return await this.tasksRepo.save(task);
   }
 
   private isValidStatusTransition(
