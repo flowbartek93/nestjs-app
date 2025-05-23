@@ -25,7 +25,7 @@ export class Task {
     type: 'text',
     nullable: false,
   })
-  descripton: string;
+  description: string;
 
   @Column({
     type: 'enum',
@@ -34,7 +34,10 @@ export class Task {
   })
   status: TaskStatus;
 
-  @OneToMany(() => TaskLabel, (label) => label.task)
+  @OneToMany(() => TaskLabel, (label) => label.task, {
+    cascade: true,
+    orphanedRowAction: 'delete',
+  })
   labels: TaskLabel[];
 
   @Column()
