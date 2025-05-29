@@ -12,16 +12,26 @@ import {
   Post,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { ITask } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
 import { UpdateTaskDto } from './update-task.dto';
 import { WrontTaskStatusException } from './exceptions/wrong-task.status.exception';
 import { Task } from './task.entity';
+import { CreateTaskLabelDto } from './ create-task-label.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
+
+  @Post(':id/labels')
+  async addLabels(
+    @Param() { id }: FindOneParams,
+    @Body() labels: CreateTaskLabelDto[],
+  ): Promise<Task> {
+    const task = await this.findOrFail(id);
+
+    return await this.tasksService.addLabels(task, labels);
+  }
 
   @Get()
   public async findAll(): Promise<Task[]> {

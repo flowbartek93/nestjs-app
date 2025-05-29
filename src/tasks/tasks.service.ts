@@ -7,26 +7,51 @@ import { WrontTaskStatusException } from './exceptions/wrong-task.status.excepti
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TaskLabel } from './task-label.entity';
+import { CreateTaskLabelDto } from './ create-task-label.dto';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
     private readonly tasksRepo: Repository<Task>,
+
+    @InjectRepository(TaskLabel)
+    private readonly labelRepo: Repository<TaskLabel>,
   ) {}
 
   private tasks: ITask[] = [];
+
+  public async addLabels(
+    task: Task,
+    labelDtos: CreateTaskLabelDto[],
+  ): Promise<Task> {
+    const labels = labelDtos.map((label) => this.labelRepo.create(label));
+
+    task.labels = [...task.labels, ...labels];
+
+    return await this.tasksRepo.save(task);
+  }
 
   async findAll(): Promise<Task[]> {
     return await this.tasksRepo.find();
   }
 
   async findOne(id: string): Promise<Task | null> {
-    return await this.tasksRepo.findOneBy({ id });
+    return await this.tasksRepo.findOne({
+      where: { id },
+      relations: ['labels'],
+    });
   }
 
   async createTask(createDto: CreateTaskDto): Promise<Task> {
     console.log(createDto);
+
+    if (createDto.labels) {
+      createDto.labels = this.getUniqueLabels(createDto.labels);
+    }
+    // await this.tasksRepo.create({});
+
     return await this.tasksRepo.save(createDto);
   }
 
@@ -39,6 +64,10 @@ export class TasksService {
       !this.isValidStatusTransition(task.status, updateTaskTo.status)
     ) {
       throw new WrontTaskStatusException();
+    }
+
+    if (updateTaskTo.labels) {
+      updateTaskTo.labels = this.getUniqueLabels(updateTaskTo.labels);
     }
 
     Object.assign(task, updateTaskTo);
@@ -57,5 +86,13 @@ export class TasksService {
     ];
 
     return statusOrder.indexOf(currentStatus) <= statusOrder.indexOf(newStatus);
+  }
+
+  private getUniqueLabels(
+    labelDtos: CreateTaskLabelDto[],
+  ): CreateTaskLabelDto[] {
+    const uniqueNames = [...new Set(labelDtos.map((label) => label.name))];
+
+    return uniqueNames.map((name) => ({ name }));
   }
 }
