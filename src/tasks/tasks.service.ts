@@ -49,6 +49,20 @@ export class TasksService {
     return await this.tasksRepo.find();
   }
 
+  async removeLabels(task: Task, labelsToRemove: string[]): Promise<Task> {
+    //1. Remove exsiting labels from labels array
+    //2. Ways to solve
+    //3. a) Remove labels from task -> labels and save() the Task
+    // b) Query builder - SQL thaty deletes labels
+    // c)
+
+    task.labels = task.labels.filter(
+      (label) => !labelsToRemove.includes(label.name),
+    );
+
+    return await this.tasksRepo.save(task);
+  }
+
   async findOne(id: string): Promise<Task | null> {
     return await this.tasksRepo.findOne({
       where: { id },
@@ -68,7 +82,7 @@ export class TasksService {
   }
 
   async deleteTask(task: Task): Promise<void> {
-    await this.tasksRepo.delete(task);
+    await this.tasksRepo.remove(task);
   }
   async updateTask(task: Task, updateTaskTo: UpdateTaskDto): Promise<Task> {
     if (

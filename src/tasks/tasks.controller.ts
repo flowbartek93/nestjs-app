@@ -63,12 +63,22 @@ export class TasksController {
     }
   }
 
+  @Delete(':id/labels')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeLabels(
+    @Param() { id }: FindOneParams,
+    @Body() labelNames: string[],
+  ): Promise<void> {
+    const task = await this.findOrFail(id);
+    await this.tasksService.removeLabels(task, labelNames);
+  }
+
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteTask(@Param() params: FindOneParams): Promise<void> {
     const task = await this.findOrFail(params.id);
 
-    this.tasksService.deleteTask(task);
+    await this.tasksService.deleteTask(task);
   }
 
   @Post()
