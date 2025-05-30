@@ -26,11 +26,23 @@ export class TasksService {
     task: Task,
     labelDtos: CreateTaskLabelDto[],
   ): Promise<Task> {
-    const labels = labelDtos.map((label) => this.labelRepo.create(label));
+    //deduplicate labels
+    //get exisint names
+    // new lalbels arent already existin
+    // save new ones onlify if there are realy new ones
 
-    task.labels = [...task.labels, ...labels];
+    const existingNames = new Set(task.labels.map((l) => l.name));
 
-    return await this.tasksRepo.save(task);
+    const labels = this.getUniqueLabels(labelDtos)
+      .filter((dto) => !existingNames.has(dto.name))
+      .map((label) => this.labelRepo.create(label));
+
+    if (labels.length) {
+      task.labels = [...task.labels, ...labels];
+      return await this.tasksRepo.save(task);
+    }
+
+    return task;
   }
 
   async findAll(): Promise<Task[]> {
