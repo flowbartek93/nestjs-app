@@ -10,6 +10,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './create-task.dto';
@@ -18,6 +19,7 @@ import { UpdateTaskDto } from './update-task.dto';
 import { WrontTaskStatusException } from './exceptions/wrong-task.status.exception';
 import { Task } from './task.entity';
 import { CreateTaskLabelDto } from './ create-task-label.dto';
+import { FindTaskParams } from './find-task.params';
 
 @Controller('tasks')
 export class TasksController {
@@ -34,8 +36,10 @@ export class TasksController {
   }
 
   @Get()
-  public async findAll(): Promise<Task[]> {
-    return await this.tasksService.findAll();
+  public async findAll(
+    @Query('filters') filters: FindTaskParams,
+  ): Promise<Task[]> {
+    return await this.tasksService.findAll(filters);
   }
 
   ///!! SPRWADZ TE RE CZY FAKTYCZNIE DZIALAJA

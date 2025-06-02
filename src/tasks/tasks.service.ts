@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ITask, TaskStatus } from './task.model';
+import { TaskStatus } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { randomUUID } from 'crypto';
 import { UpdateTaskDto } from './update-task.dto';
@@ -9,6 +9,7 @@ import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './ create-task-label.dto';
+import { FindTaskParams } from './find-task.params';
 
 @Injectable()
 export class TasksService {
@@ -19,8 +20,6 @@ export class TasksService {
     @InjectRepository(TaskLabel)
     private readonly labelRepo: Repository<TaskLabel>,
   ) {}
-
-  private tasks: ITask[] = [];
 
   public async addLabels(
     task: Task,
@@ -45,8 +44,14 @@ export class TasksService {
     return task;
   }
 
-  async findAll(): Promise<Task[]> {
-    return await this.tasksRepo.find();
+  async findAll(filters: FindTaskParams): Promise<Task[]> {
+    console.log(filters);
+
+    console.log('hwdp');
+    return await this.tasksRepo.find({
+      where: { status: filters.status },
+      relations: ['labels'],
+    });
   }
 
   async removeLabels(task: Task, labelsToRemove: string[]): Promise<Task> {
