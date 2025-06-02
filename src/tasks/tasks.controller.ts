@@ -20,6 +20,8 @@ import { WrontTaskStatusException } from './exceptions/wrong-task.status.excepti
 import { Task } from './task.entity';
 import { CreateTaskLabelDto } from './ create-task-label.dto';
 import { FindTaskParams } from './find-task.params';
+import { PaginationParams } from 'src/common/pagination.params';
+import { PaginationResponse } from 'src/common/pagination.response';
 
 @Controller('tasks')
 export class TasksController {
@@ -38,8 +40,18 @@ export class TasksController {
   @Get()
   public async findAll(
     @Query('filters') filters: FindTaskParams,
-  ): Promise<Task[]> {
-    return await this.tasksService.findAll(filters);
+    @Query('pagination') pagination: PaginationParams,
+  ): Promise<PaginationResponse<Task>> {
+    const [items, total] = await this.tasksService.findAll(filters, pagination);
+
+    return {
+      data: items,
+      meta: {
+        total,
+        offset: pagination.offset,
+        limit: pagination.limit,
+      },
+    };
   }
 
   ///!! SPRWADZ TE RE CZY FAKTYCZNIE DZIALAJA
